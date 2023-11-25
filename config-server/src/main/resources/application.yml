@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    config:
+#      token: myroot
+      discovery:
+        enabled: true
+      server:
+        git:
+          uri: https://github.com/karamalqinneh/ecommerce-microservices-config
+          default-label: main
+          order: 2
+        vault:
+          host: localhost
+          port: 8200
+          order: 1
+          scheme: http
+          token: myroot
+
+  application:
+    name: config-server
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+server:
+  port: 8888
