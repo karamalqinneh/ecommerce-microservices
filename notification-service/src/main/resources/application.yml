@@ -1,5 +1,20 @@
 spring:
   application:
     name: notification-service
-  config:
-    import: configserver:http://localhost:8888
+  kafka:
+    bootstrap-servers:
+      - 127.0.0.1:9092
+
+server:
+  port: 0
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      default-zone: http://service-registry:8761/eureka
+  instance:
+    prefer-ip-address: true
+
+

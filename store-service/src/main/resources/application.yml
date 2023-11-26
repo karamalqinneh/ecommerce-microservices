@@ -1,8 +1,27 @@
 spring:
   application:
     name: store-service
-  config:
-    import: configserver:http://localhost:8888
   logging:
     level:
       org.springframework.kafka: DEBUG
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: store-main
+    kafka:
+      bootstrap-servers:
+        - 127.0.0.1:9092
+
+server:
+  port: 0
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    service-url:
+      default-zone: http://service-registry:8761/eureka
+  instance:
+    prefer-ip-address: true
+

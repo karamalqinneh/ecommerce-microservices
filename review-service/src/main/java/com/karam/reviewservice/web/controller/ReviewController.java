@@ -4,6 +4,7 @@ import com.karam.reviewservice.domain.Review;
 import com.karam.reviewservice.service.ReviewService;
 import com.karam.reviewservice.web.dto.ReviewDto;
 import com.karam.reviewservice.web.util.PageResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +20,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/review")
-//@AllArgsConstructor
 public class ReviewController {
 
     @Value("${app.secret}")
@@ -33,11 +33,11 @@ public class ReviewController {
         return appSecret;
     }
 
+    @CircuitBreaker(name = "reviewService", fallbackMethod = "getProductReviews")
     @GetMapping("/{productId}")
     public ResponseEntity<?> getProductReviews(@PathVariable String productId,
                                                @RequestParam(defaultValue = "0") int page,
                                                @RequestParam(defaultValue = "10") int size) {
-        System.out.println("############################################### CALLED @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         Pageable paging = PageRequest.of(page, size);
         Page<Review> query = reviewService.getAllReviews(paging, productId);
 
@@ -46,6 +46,11 @@ public class ReviewController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> getProductReviews(@PathVariable String productId,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size, Throwable t) {
+        throw new RuntimeException("Fallback method of the circuit breaker");
+    }
 
 
     @PostMapping("/{productId}")

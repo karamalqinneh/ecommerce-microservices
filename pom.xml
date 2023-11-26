@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.karam</groupId>
     <artifactId>ecommerce-microservices</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>v1</version>
     <name>ecommerce-microservices</name>
     <description>ecommerce-microservices</description>
     <properties>
