@@ -16,20 +16,22 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  kafka:
-    image: wurstmeister/kafka
+  broker:
+    image: obsidiandynamics/kafka
+    restart: "no"
     ports:
       - "9092:9092"
-    depends_on:
-      - zookeeper
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENERS: "INTERNAL://:29092,EXTERNAL://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://broker:29092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+      ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL: "0"
+    networks:
+      - services
 
 
   #  config-server:
@@ -51,6 +53,7 @@ services:
 
   store-service:
     image: kqinneh/store-service:v1
+#    pull_policy: always
     container_name: store-service
     platform: linux/x86_64
 #    environment:
@@ -63,6 +66,7 @@ services:
       - services
 
   review-service:
+#    pull_policy: always
     image: kqinneh/review-service:v1
     container_name: review-service
     platform: linux/x86_64
@@ -70,7 +74,7 @@ services:
 #      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - mongodb_container
-      - kafka
+      - broker
       - zookeeper
       - service-registry
     restart: always
@@ -78,16 +82,22 @@ services:
       - services
 
   service-registry:
+#    pull_policy: always
     image: kqinneh/service-registry:v1
     container_name: service-registry
     platform: linux/x86_64
-    #    environment:
+    ports:
+      - "8761:8761"
+#    expose:
+#      - "8761"
+        #    environment:
     #      - SPRING_PROFILES_ACTIVE=docker
     restart: always
     networks:
       - services
 
   notification-service:
+#    pull_policy: always
     image: kqinneh/notification-service:v1
     container_name: notification-service
     platform: linux/x86_64
@@ -95,7 +105,7 @@ services:
     #      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - mongodb_container
-      - kafka
+      - broker
       - zookeeper
       - service-registry
     restart: always
@@ -103,11 +113,14 @@ services:
       - services
 
   gateway-server:
+#    pull_policy: always
     image: kqinneh/gateway-server:v1
     container_name: gateway-server
     platform: linux/x86_64
-    expose:
-      - "8072"
+    ports:
+      - "8072:8072"
+#    expose:
+#      - "8072"
         #    environment:
 #      - SPRING_PROFILES_ACTIVE=docker
 #      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
