@@ -11,7 +11,7 @@ spring:
       database: store-main
     kafka:
       bootstrap-servers:
-        - broker:29092
+        - ${KAFKA_URL:broker:29092 }
 
 server:
   port: 0
@@ -21,7 +21,19 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_URL:http://service-registry:8761/eureka}
   instance:
     prefer-ip-address: true
 
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  observations:
+    key-values:
+      application: ${spring.application.name}

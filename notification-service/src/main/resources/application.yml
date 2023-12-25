@@ -2,8 +2,7 @@ spring:
   application:
     name: notification-service
   kafka:
-    bootstrap-servers:
-      - broker:29092
+    bootstrapServers: ${KAFKA_URL:localhost:9092 }
 
 server:
   port: 0
@@ -13,8 +12,19 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     serviceUrl:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_URL:http://service-registry:8761/eureka}
   instance:
     prefer-ip-address: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  observations:
+    key-values:
+      application: ${spring.application.name}
 
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

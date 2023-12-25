@@ -8,6 +8,7 @@ import com.karam.storeservice.web.dto.OrderDto;
 import com.karam.storeservice.web.util.PageResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,17 +22,20 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order")
 @AllArgsConstructor
+@Log4j2
 public class OrderController {
 
     private OrderService orderService;
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        log.debug("store getAll start");
         Pageable paging = PageRequest.of(page, size);
         Page<Order> query = orderService.findAll(paging);
 
         Map<String, Object> response = PageResponse.getPagedResponse(query);
 
+        log.debug("store getAll end");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -51,8 +55,10 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> addNew(@Valid @RequestBody OrderDto orderDto) {
+        log.debug("store addNew start");
         orderService.addOrder(orderDto);
 
+        log.debug("store addNew end");
         return new ResponseEntity<>(orderDto, HttpStatus.CREATED);
     }
 

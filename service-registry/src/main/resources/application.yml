@@ -12,3 +12,16 @@ eureka:
 
 server:
     port: 8761
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    observations:
+        key-values:
+            application: ${spring.application.name}
+
+logging:
+    pattern:
+        level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
